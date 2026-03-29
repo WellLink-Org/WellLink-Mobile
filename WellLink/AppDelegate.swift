@@ -1,36 +1,69 @@
-//
-//  AppDelegate.swift
-//  WellLink
-//
-//  Created by Sachindu Himash Peiris on 21.03.2026.
-//
+// AppDelegate.swift
+// Handles the Auth0 callback URL (welllink://callback) after the browser redirects back.
 
 import UIKit
+import Auth0
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    var window: UIWindow?
 
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
+        window = UIWindow(frame: UIScreen.main.bounds)
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Always start with WelcomeViewController immediately
+        window?.rootViewController = WelcomeViewController()
+        window?.makeKeyAndVisible()
+
+        // Then silently check for a valid saved session in the background
+        AuthManager.shared.restoreSession { loggedIn in
+            guard loggedIn else { return }  // stay on welcome screen
+            DispatchQueue.main.async {
+                // Valid session found — go straight to the main app
+                let main = MainTabBarController()
+                main.modalPresentationStyle = .fullScreen
+                self.window?.rootViewController?.present(main, animated: false)
+            }
+        }
         return true
     }
 
-    // MARK: UISceneSession Lifecycle
-
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
-        // Called when a new scene session is being created.
-        // Use this method to select a configuration to create the new scene with.
-        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    // ── Auth0 redirect callback (iOS 12 / non-Scene apps) ─────────────────
+    func application(
+        _ app: UIApplication,
+        open url: URL,
+        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+    ) -> Bool {
+        return WebAuthentication.resume(with: url)
     }
-
-    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
-        // Called when the user discards a scene session.
-        // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
-        // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
-    }
-
-
 }
 
+// ── MARK: MainTabBarController ─────────────────────────────────────────────────
+/// Simple tab bar shown after successful login.
+/// Add more tabs here as your app grows.
+final class MainTabBarController: UITabBarController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        let dashNav    = UINavigationController(rootViewController: ViewController())
+        dashNav.tabBarItem = UITabBarItem(
+            title: "Dashboard",
+            image: UIImage(systemName: "heart.fill"),
+            tag: 0
+        )
+
+        let profileNav = UINavigationController(rootViewController: ProfileViewController())
+        profileNav.tabBarItem = UITabBarItem(
+            title: "Profile",
+            image: UIImage(systemName: "person.circle"),
+            tag: 1
+        )
+
+        viewControllers = [dashNav, profileNav]
+    }
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Auth0.plist
+  Place this file in your Xcode project (same group as Info.plist).
+  The Auth0 SDK reads it automatically — no code needed.
+
+  Replace the placeholder values below with your real Auth0 credentials.
+-->
+<plist version="1.0">
+<dict>
+    <key>ClientId</key>
+    <string>YOUR_AUTH0_CLIENT_ID</string>     <!-- e.g. abc123XYZ -->
+
+    <key>Domain</key>
+    <string>YOUR_AUTH0_DOMAIN.auth0.com</string>  <!-- e.g. dev-abc123.us.auth0.com -->
+</dict>
+</plist>

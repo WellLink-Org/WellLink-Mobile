@@ -24,3 +24,6 @@ fastlane/screenshots/
 
 # macOS
 .DS_Store
+
+# AuthConfig
+**/Auth0Config.swift
